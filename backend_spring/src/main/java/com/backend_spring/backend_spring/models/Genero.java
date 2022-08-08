@@ -12,12 +12,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="sexos")
+@Table(name="generos")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Sexo 
+public class Genero
 {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
