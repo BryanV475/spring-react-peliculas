@@ -10,8 +10,7 @@ import com.backend_spring.backend_spring.models.Sexo;
 import com.backend_spring.backend_spring.repositories.SexoRepository;
 
 @Service
-public class SexoServiceImpl
-        implements SexoService {
+public class SexoServiceImpl implements SexoService {
 
     @Autowired
     private SexoRepository sexoRepository;

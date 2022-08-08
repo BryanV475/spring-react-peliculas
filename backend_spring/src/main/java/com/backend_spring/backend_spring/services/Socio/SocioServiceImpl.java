@@ -10,7 +10,7 @@ import com.backend_spring.backend_spring.models.Socio;
 import com.backend_spring.backend_spring.repositories.SocioRepository;
 
 @Service
-public class SocioServiceImpl implements SocioService{
+public class SocioServiceImpl implements SocioService {
     @Autowired
     private SocioRepository socioRepository;
 
@@ -19,6 +19,7 @@ public class SocioServiceImpl implements SocioService{
     public Socio saveSocio(Socio socio) {
         return socioRepository.save(socio);
     }
+
     // Leer
     @Override
     public List<Socio> fetchSocioList() {
