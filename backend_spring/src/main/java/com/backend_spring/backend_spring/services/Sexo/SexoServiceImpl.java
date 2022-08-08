@@ -31,13 +31,13 @@ public class SexoServiceImpl implements SexoService {
     @Override
     public Sexo updateSexo(Sexo sexo, Long sexoId) {
 
-        Sexo sexDB = sexoRepository.findById(sexoId).get();
+        Sexo sexoDB = sexoRepository.findById(sexoId).get();
 
         if (Objects.nonNull(sexo.getNombre()) && !"".equalsIgnoreCase(sexo.getNombre())) {
-            sexDB.setNombre(sexo.getNombre());
+            sexoDB.setNombre(sexo.getNombre());
         }
 
-        return sexoRepository.save(sexDB);
+        return sexoRepository.save(sexoDB);
     }
 
     // Eliminar

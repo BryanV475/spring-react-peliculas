@@ -30,13 +30,13 @@ public class DirectorServiceImpl implements DirectorService{
     @Override
     public Director updateDirector(Director director, Long directorId) {
 
-        Director sexDB = directorRepository.findById(directorId).get();
+        Director directorDB = directorRepository.findById(directorId).get();
 
         if (Objects.nonNull(director.getNombre()) && !"".equalsIgnoreCase(director.getNombre())) {
-            sexDB.setNombre(director.getNombre());
+            directorDB.setNombre(director.getNombre());
         }
 
-        return directorRepository.save(sexDB);
+        return directorRepository.save(directorDB);
     }
 
     // Eliminar
