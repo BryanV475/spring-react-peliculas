@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.backend_spring.backend_spring.models.Sexo;
-import com.backend_spring.backend_spring.services.SexoService;
+import com.backend_spring.backend_spring.services.Sexo.SexoService;
 
 @RestController
 public class SexoController {
