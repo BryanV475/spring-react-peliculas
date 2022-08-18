@@ -19,7 +19,7 @@ import javax.persistence.Table;
 @Builder
 public class ActorPelicula {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long act_id;
     private Long pel_id;

@@ -19,7 +19,7 @@ import javax.persistence.Table;
 @Builder
 public class Director {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
 }

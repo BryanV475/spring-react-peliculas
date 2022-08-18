@@ -19,7 +19,7 @@ import javax.persistence.Table;
 @Builder
 public class Socio {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String cedula;
     private String nombre;

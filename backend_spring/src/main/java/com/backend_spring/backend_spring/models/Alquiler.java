@@ -21,7 +21,7 @@ import javax.persistence.Table;
 @Builder
 public class Alquiler {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long soc_id;
     private Long pel_id;

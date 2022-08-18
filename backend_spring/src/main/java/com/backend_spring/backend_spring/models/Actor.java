@@ -19,7 +19,7 @@ import javax.persistence.Table;
 @Builder
 public class Actor {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String nombre;
     Long sex_id;

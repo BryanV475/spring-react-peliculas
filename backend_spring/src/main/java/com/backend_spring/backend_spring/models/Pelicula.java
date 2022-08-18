@@ -20,7 +20,7 @@ import java.util.Date;
 @Builder
 public class Pelicula {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long gen_id;
     private Long dir_id;
