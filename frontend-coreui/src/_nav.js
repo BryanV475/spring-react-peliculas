@@ -32,8 +32,8 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Colors',
-    to: '/theme/colors',
+    name: 'Actores Crud',
+    to: '/actores',
     icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
   },
   {
