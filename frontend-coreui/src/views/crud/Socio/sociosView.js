@@ -6,12 +6,10 @@ import { cilPencil, cilPlus, cilTrash } from '@coreui/icons'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
-const URL = 'http://localhost:8080/backend/actores/'
-const URLSEXO = 'http://localhost:8080/backend/sexos/'
+const URL = 'http://localhost:8080/backend/socios/'
 
-export default function actoresView() {
+export default function sociosView() {
   const [data, setData] = useState([])
-  const [sexos, setSexos] = useState([])
 
   var range = 0
 
@@ -20,13 +18,16 @@ export default function actoresView() {
 
   const [inputText, setInputText] = useState('')
 
-  const [actorSeleccionado, setActorSeleccionado] = useState({
+  const [socioSeleccionado, setSocioSeleccionado] = useState({
+    cedula: '',
     nombre: '',
-    sex_id: 0,
+    direccion: '',
+    telefono: '',
+    correo: '',
   })
 
-  const seleccionarActor = (actor) => {
-    setActorSeleccionado(actor)
+  const seleccionarSocio = (socio) => {
+    setSocioSeleccionado(socio)
   }
 
   let inputHandler = (e) => {
@@ -36,16 +37,10 @@ export default function actoresView() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setActorSeleccionado((prevState) => ({
+    setSocioSeleccionado((prevState) => ({
       ...prevState,
       [name]: value,
     }))
-  }
-
-  const listarSexos = async () => {
-    await axios.get(URLSEXO).then((response) => {
-      setSexos(response.data)
-    })
   }
 
   const listarGet = async () => {
@@ -53,38 +48,39 @@ export default function actoresView() {
       setData(response.data)
     })
   }
+
   function reset() {
-    actorSeleccionado.id = 0
-    actorSeleccionado.nombre = ''
-    actorSeleccionado.sex_id = 0
+    socioSeleccionado.id = 0
+    socioSeleccionado.cedula = ''
+    socioSeleccionado.nombre = ''
+    socioSeleccionado.direccion = ''
+    socioSeleccionado.telefono = ''
+    socioSeleccionado.correo = ''
     listarGet()
   }
+
   const agregarPost = async () => {
-    actorSeleccionado.id = 0
-    await axios.post(URL, actorSeleccionado).then((response) => {
+    socioSeleccionado.id = 0
+    await axios.post(URL, socioSeleccionado).then((response) => {
       setData(data.concat(response.data))
     })
     reset()
   }
 
   const editarPut = async () => {
-    await axios.put(URL + actorSeleccionado.id, actorSeleccionado).then((response) => {
+    await axios.put(URL + socioSeleccionado.id, socioSeleccionado).then((response) => {
       listarGet()
     })
     reset()
   }
 
   const borrarDelete = async () => {
-    await axios.delete(URL + actorSeleccionado.id).then((response) => {
-      setData(data.filter((actor) => actor.id !== actorSeleccionado.id))
+    await axios.delete(URL + socioSeleccionado.id).then((response) => {
+      setData(data.filter((socio) => socio.id !== socioSeleccionado.id))
     })
     reset()
     setPage(0)
   }
-
-  useEffect(() => {
-    listarSexos()
-  }, [])
 
   useEffect(() => {
     listarGet()
@@ -108,7 +104,7 @@ export default function actoresView() {
                     }}
                   >
                     <div className="float-left">
-                      <h4>Lista de Actores </h4>
+                      <h4>Lista de Socios </h4>
                     </div>
                     <div>
                       <input
@@ -116,7 +112,7 @@ export default function actoresView() {
                         id="inputText"
                         name="inputText"
                         className="form-control"
-                        placeholder="Buscar Actores"
+                        placeholder="Buscar Socios"
                         onChange={inputHandler}
                       />
                     </div>
@@ -125,7 +121,7 @@ export default function actoresView() {
                       data-toggle="modal"
                       data-target="#createDataModal"
                     >
-                      <CIcon icon={cilPlus} /> Crear Actor
+                      <CIcon icon={cilPlus} /> Crear Socio
                     </button>
                   </div>
                 </div>
@@ -135,34 +131,39 @@ export default function actoresView() {
                       <thead className="thead">
                         <tr>
                           <td>Id</td>
+                          <td>Cedula</td>
                           <th>Nombre</th>
-                          <th>Sexo</th>
-                          <th>Acciones</th>
+                          <th>Direccion</th>
+                          <th>Telefono</th>
+                          <th>Correo</th>
                         </tr>
                       </thead>
                       <tbody>
                         {data
-                          .filter((actor) => {
-                            var actorFilter
+                          .filter((socio) => {
+                            var socioFilter
                             if (inputText === '') {
-                              actorFilter = actor
-                            } else if (actor.nombre.toLowerCase().includes(inputText)) {
-                              actorFilter = actor
+                              socioFilter = socio
+                            } else if (socio.nombre.toLowerCase().includes(inputText)) {
+                              socioFilter = socio
                             }
-                            return actorFilter
+                            return socioFilter
                           })
                           .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                          .map((actor) => (
-                            <tr key={actor.id}>
-                              <td>{actor.id}</td>
-                              <td>{actor.nombre}</td>
-                              <td>{sexos[actor.sex_id - 1].nombre}</td>
+                          .map((socio) => (
+                            <tr key={socio.id}>
+                              <td>{socio.id}</td>
+                              <td>{socio.cedula}</td>
+                              <td>{socio.nombre}</td>
+                              <td>{socio.direccion}</td>
+                              <td>{socio.telefono}</td>
+                              <td>{socio.correo}</td>
                               <td className="d-flex justify-content-around">
                                 <button
                                   className="btn btn-info btn-sm"
                                   data-toggle="modal"
                                   data-target="#updateDataModal"
-                                  onClick={() => seleccionarActor(actor)}
+                                  onClick={() => seleccionarSocio(socio)}
                                 >
                                   <CIcon icon={cilPencil} /> Editar
                                 </button>
@@ -170,7 +171,7 @@ export default function actoresView() {
                                   className="btn btn-danger btn-sm"
                                   data-toggle="modal"
                                   data-target="#deleteDataModal"
-                                  onClick={() => seleccionarActor(actor)}
+                                  onClick={() => seleccionarSocio(socio)}
                                 >
                                   <CIcon icon={cilTrash} /> Eliminar
                                 </button>
@@ -226,7 +227,7 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="createDataModalLabel">
-                Crear Actor
+                Crear Socio
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
@@ -235,6 +236,18 @@ export default function actoresView() {
             <div className="modal-body">
               <form>
                 <div className="form-group">
+                  <label htmlFor="cedula" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="cedula"
+                    name="cedula"
+                    placeholder="Cedula"
+                    value={socioSeleccionado.cedula}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
                   <label htmlFor="nombre" />
                   <input
                     type="text"
@@ -242,26 +255,45 @@ export default function actoresView() {
                     id="nombre"
                     name="nombre"
                     placeholder="Nombre"
-                    value={actorSeleccionado.nombre}
+                    value={socioSeleccionado.nombre}
                     onChange={handleChange}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="sex_id" />
-                  <select
+                  <label htmlFor="direccion" />
+                  <input
+                    type="text"
                     className="form-control"
-                    id="sex_id"
-                    name="sex_id"
+                    id="direccion"
+                    name="direccion"
+                    placeholder="Direccion"
+                    value={socioSeleccionado.direccion}
                     onChange={handleChange}
-                    value={actorSeleccionado.sex_id}
-                  >
-                    <option value={0}>-Seleccione-</option>
-                    {sexos.map((sexo) => (
-                      <option key={sexo.id} value={sexo.id}>
-                        {sexo.nombre}
-                      </option>
-                    ))}
-                  </select>
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="telefono" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="telefono"
+                    name="telefono"
+                    placeholder="Telefono"
+                    value={socioSeleccionado.telefono}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="correo" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="correo"
+                    name="correo"
+                    placeholder="Correo"
+                    value={socioSeleccionado.correo}
+                    onChange={handleChange}
+                  />
                 </div>
               </form>
             </div>
@@ -295,7 +327,7 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="updateDataModalLabel">
-                Editar Actor
+                Editar Socio
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
@@ -304,6 +336,18 @@ export default function actoresView() {
             <div className="modal-body">
               <form>
                 <div className="form-group">
+                  <label htmlFor="cedula" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="cedula"
+                    name="cedula"
+                    placeholder="Cedula"
+                    value={socioSeleccionado.cedula}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
                   <label htmlFor="nombre" />
                   <input
                     type="text"
@@ -311,26 +355,45 @@ export default function actoresView() {
                     id="nombre"
                     name="nombre"
                     placeholder="Nombre"
-                    value={actorSeleccionado.nombre}
+                    value={socioSeleccionado.nombre}
                     onChange={handleChange}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="sex_id" />
-                  <select
+                  <label htmlFor="direccion" />
+                  <input
+                    type="text"
                     className="form-control"
-                    id="sex_id"
-                    name="sex_id"
+                    id="direccion"
+                    name="direccion"
+                    placeholder="Direccion"
+                    value={socioSeleccionado.direccion}
                     onChange={handleChange}
-                    value={actorSeleccionado.sex_id}
-                  >
-                    <option value={0}>-Seleccione-</option>
-                    {sexos.map((sexo) => (
-                      <option key={sexo.id} value={sexo.id}>
-                        {sexo.nombre}
-                      </option>
-                    ))}
-                  </select>
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="telefono" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="telefono"
+                    name="telefono"
+                    placeholder="Telefono"
+                    value={socioSeleccionado.telefono}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="correo" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="correo"
+                    name="correo"
+                    placeholder="Correo"
+                    value={socioSeleccionado.correo}
+                    onChange={handleChange}
+                  />
                 </div>
               </form>
             </div>
@@ -364,14 +427,14 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="deleteDataModalLabel">
-                Eliminar Actor
+                Eliminar Socio
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
               </button>
             </div>
             <div className="modal-body">
-              <h4>Realmente desea eliminar el Actor: {actorSeleccionado.nombre} ?</h4>
+              <h4>Realmente desea eliminar el Socio: {socioSeleccionado.nombre} ?</h4>
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary close-btn" data-dismiss="modal">
