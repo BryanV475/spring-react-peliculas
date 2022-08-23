@@ -6,12 +6,14 @@ import { cilPencil, cilPlus, cilTrash } from '@coreui/icons'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
-const URL = 'http://localhost:8080/backend/actores/'
-const URLSEXO = 'http://localhost:8080/backend/sexos/'
+const URL = 'http://localhost:8080/backend/actorpeliculas/'
+const URLACTORES = 'http://localhost:8080/backend/actores/'
+const URLPELICULAS = 'http://localhost:8080/backend/peliculas/'
 
-export default function actoresView() {
+export default function actorPeliculaPeliculasView() {
   const [data, setData] = useState([])
-  const [sexos, setSexos] = useState([])
+  const [actores, setActores] = useState([])
+  const [peliculas, setPeliculas] = useState([])
 
   var range = 0
 
@@ -20,13 +22,14 @@ export default function actoresView() {
 
   const [inputText, setInputText] = useState('')
 
-  const [actorSeleccionado, setActorSeleccionado] = useState({
-    nombre: '',
-    sex_id: 0,
+  const [actorPeliculaSeleccionado, setActorPeliculaSeleccionado] = useState({
+    act_id: 0,
+    pel_id: 0,
+    papel: '',
   })
 
-  const seleccionarActor = (actor) => {
-    setActorSeleccionado(actor)
+  const seleccionarActorPelicula = (actorPelicula) => {
+    setActorPeliculaSeleccionado(actorPelicula)
   }
 
   let inputHandler = (e) => {
@@ -36,16 +39,10 @@ export default function actoresView() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setActorSeleccionado((prevState) => ({
+    setActorPeliculaSeleccionado((prevState) => ({
       ...prevState,
       [name]: value,
     }))
-  }
-
-  const listarSexos = async () => {
-    await axios.get(URLSEXO).then((response) => {
-      setSexos(response.data)
-    })
   }
 
   const listarGet = async () => {
@@ -53,37 +50,55 @@ export default function actoresView() {
       setData(response.data)
     })
   }
+
+  const listarActores = async () => {
+    await axios.get(URLACTORES).then((response) => {
+      setActores(response.data)
+    })
+  }
+
+  const listarPeliculas = async () => {
+    await axios.get(URLPELICULAS).then((response) => {
+      setPeliculas(response.data)
+    })
+  }
+
   function reset() {
-    actorSeleccionado.id = 0
-    actorSeleccionado.nombre = ''
-    actorSeleccionado.sex_id = 0
+    actorPeliculaSeleccionado.id = 0
+    actorPeliculaSeleccionado.act_id = 0
+    actorPeliculaSeleccionado.pel_id = 0
+    actorPeliculaSeleccionado.papel = ''
     listarGet()
   }
+
   const agregarPost = async () => {
-    actorSeleccionado.id = 0
-    await axios.post(URL, actorSeleccionado).then((response) => {
+    actorPeliculaSeleccionado.id = 0
+    await axios.post(URL, actorPeliculaSeleccionado).then((response) => {
       setData(data.concat(response.data))
     })
     reset()
   }
 
   const editarPut = async () => {
-    await axios.put(URL + actorSeleccionado.id, actorSeleccionado).then((response) => {
-      listarGet()
-    })
+    await axios
+      .put(URL + actorPeliculaSeleccionado.id, actorPeliculaSeleccionado)
+      .then((response) => {
+        listarGet()
+      })
     reset()
   }
 
   const borrarDelete = async () => {
-    await axios.delete(URL + actorSeleccionado.id).then((response) => {
-      setData(data.filter((actor) => actor.id !== actorSeleccionado.id))
+    await axios.delete(URL + actorPeliculaSeleccionado.id).then((response) => {
+      setData(data.filter((actorPelicula) => actorPelicula.id !== actorPeliculaSeleccionado.id))
     })
     reset()
     setPage(0)
   }
 
   useEffect(() => {
-    listarSexos()
+    listarPeliculas()
+    listarActores()
   }, [])
 
   useEffect(() => {
@@ -108,7 +123,7 @@ export default function actoresView() {
                     }}
                   >
                     <div className="float-left">
-                      <h4>Lista de Actores </h4>
+                      <h4>Lista de Papeles </h4>
                     </div>
                     <div>
                       <input
@@ -116,7 +131,7 @@ export default function actoresView() {
                         id="inputText"
                         name="inputText"
                         className="form-control"
-                        placeholder="Buscar Actores"
+                        placeholder="Buscar Papeles"
                         onChange={inputHandler}
                       />
                     </div>
@@ -125,7 +140,7 @@ export default function actoresView() {
                       data-toggle="modal"
                       data-target="#createDataModal"
                     >
-                      <CIcon icon={cilPlus} /> Crear Actor
+                      <CIcon icon={cilPlus} /> Crear Papel
                     </button>
                   </div>
                 </div>
@@ -135,34 +150,60 @@ export default function actoresView() {
                       <thead className="thead">
                         <tr>
                           <td>Id</td>
-                          <th>Nombre</th>
-                          <th>Sexo</th>
+                          <th>Actor</th>
+                          <th>Pelicula</th>
+                          <th>Papel</th>
                           <th>Acciones</th>
                         </tr>
                       </thead>
                       <tbody>
                         {data
-                          .filter((actor) => {
-                            var actorFilter
+                          .filter((actorPelicula) => {
+                            var actorPeliculaFilter
                             if (inputText === '') {
-                              actorFilter = actor
-                            } else if (actor.nombre.toLowerCase().includes(inputText)) {
-                              actorFilter = actor
+                              actorPeliculaFilter = actorPelicula
+                            } else if (actorPelicula.papel.toLowerCase().includes(inputText)) {
+                              actorPeliculaFilter = actorPelicula
                             }
-                            return actorFilter
+                            return actorPeliculaFilter
                           })
                           .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                          .map((actor) => (
-                            <tr key={actor.id}>
-                              <td>{actor.id}</td>
-                              <td>{actor.nombre}</td>
-                              <td>{sexos[actor.sex_id - 1].nombre}</td>
+                          .map((actorPelicula) => (
+                            <tr key={actorPelicula.id}>
+                              <td>{actorPelicula.id}</td>
+                              <td>
+                                {actores
+                                  .filter((actor) => {
+                                    var filter
+                                    if (actor.id === actorPelicula.act_id) {
+                                      filter = actor
+                                    }
+                                    return filter
+                                  })
+                                  .map((actor) => {
+                                    return actor.nombre
+                                  })}
+                              </td>
+                              <td>
+                                {peliculas
+                                  .filter((pelicula) => {
+                                    var filter
+                                    if (pelicula.id === actorPelicula.pel_id) {
+                                      filter = pelicula
+                                    }
+                                    return filter
+                                  })
+                                  .map((pelicula) => {
+                                    return pelicula.nombre
+                                  })}
+                              </td>
+                              <td>{actorPelicula.papel}</td>
                               <td className="d-flex justify-content-around">
                                 <button
                                   className="btn btn-info btn-sm"
                                   data-toggle="modal"
                                   data-target="#updateDataModal"
-                                  onClick={() => seleccionarActor(actor)}
+                                  onClick={() => seleccionarActorPelicula(actorPelicula)}
                                 >
                                   <CIcon icon={cilPencil} /> Editar
                                 </button>
@@ -170,7 +211,7 @@ export default function actoresView() {
                                   className="btn btn-danger btn-sm"
                                   data-toggle="modal"
                                   data-target="#deleteDataModal"
-                                  onClick={() => seleccionarActor(actor)}
+                                  onClick={() => seleccionarActorPelicula(actorPelicula)}
                                 >
                                   <CIcon icon={cilTrash} /> Eliminar
                                 </button>
@@ -226,7 +267,7 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="createDataModalLabel">
-                Crear Actor
+                Crear ActorPelicula
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
@@ -235,33 +276,50 @@ export default function actoresView() {
             <div className="modal-body">
               <form>
                 <div className="form-group">
+                  <label htmlFor="act_id" />
+                  <select
+                    className="form-control"
+                    id="act_id"
+                    name="act_id"
+                    onChange={handleChange}
+                    value={actorPeliculaSeleccionado.act_id}
+                  >
+                    <option value={0}>-Seleccione-</option>
+                    {actores.map((actor) => (
+                      <option key={actor.id} value={actor.id}>
+                        {actor.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="pel_id" />
+                  <select
+                    className="form-control"
+                    id="pel_id"
+                    name="pel_id"
+                    onChange={handleChange}
+                    value={actorPeliculaSeleccionado.pel_id}
+                  >
+                    <option value={0}>-Seleccione-</option>
+                    {peliculas.map((pelicula) => (
+                      <option key={pelicula.id} value={pelicula.id}>
+                        {pelicula.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
                   <label htmlFor="nombre" />
                   <input
                     type="text"
                     className="form-control"
-                    id="nombre"
-                    name="nombre"
-                    placeholder="Nombre"
-                    value={actorSeleccionado.nombre}
+                    id="papel"
+                    name="papel"
+                    placeholder="Papel"
+                    value={actorPeliculaSeleccionado.papel}
                     onChange={handleChange}
                   />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="sex_id" />
-                  <select
-                    className="form-control"
-                    id="sex_id"
-                    name="sex_id"
-                    onChange={handleChange}
-                    value={actorSeleccionado.sex_id}
-                  >
-                    <option value={0}>-Seleccione-</option>
-                    {sexos.map((sexo) => (
-                      <option key={sexo.id} value={sexo.id}>
-                        {sexo.nombre}
-                      </option>
-                    ))}
-                  </select>
                 </div>
               </form>
             </div>
@@ -295,7 +353,7 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="updateDataModalLabel">
-                Editar Actor
+                Editar ActorPelicula
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
@@ -304,33 +362,50 @@ export default function actoresView() {
             <div className="modal-body">
               <form>
                 <div className="form-group">
+                  <label htmlFor="act_id" />
+                  <select
+                    className="form-control"
+                    id="act_id"
+                    name="act_id"
+                    onChange={handleChange}
+                    value={actorPeliculaSeleccionado.act_id}
+                  >
+                    <option value={0}>-Seleccione-</option>
+                    {actores.map((actor) => (
+                      <option key={actor.id} value={actor.id}>
+                        {actor.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="pel_id" />
+                  <select
+                    className="form-control"
+                    id="pel_id"
+                    name="pel_id"
+                    onChange={handleChange}
+                    value={actorPeliculaSeleccionado.pel_id}
+                  >
+                    <option value={0}>-Seleccione-</option>
+                    {peliculas.map((pelicula) => (
+                      <option key={pelicula.id} value={pelicula.id}>
+                        {pelicula.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
                   <label htmlFor="nombre" />
                   <input
                     type="text"
                     className="form-control"
-                    id="nombre"
-                    name="nombre"
-                    placeholder="Nombre"
-                    value={actorSeleccionado.nombre}
+                    id="papel"
+                    name="papel"
+                    placeholder="Papel"
+                    value={actorPeliculaSeleccionado.papel}
                     onChange={handleChange}
                   />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="sex_id" />
-                  <select
-                    className="form-control"
-                    id="sex_id"
-                    name="sex_id"
-                    onChange={handleChange}
-                    value={actorSeleccionado.sex_id}
-                  >
-                    <option value={0}>-Seleccione-</option>
-                    {sexos.map((sexo) => (
-                      <option key={sexo.id} value={sexo.id}>
-                        {sexo.nombre}
-                      </option>
-                    ))}
-                  </select>
                 </div>
               </form>
             </div>
@@ -364,14 +439,14 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="deleteDataModalLabel">
-                Eliminar Actor
+                Eliminar Papel
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
               </button>
             </div>
             <div className="modal-body">
-              <h4>Realmente desea eliminar el Actor: {actorSeleccionado.nombre} ?</h4>
+              <h4>Realmente desea eliminar el Papel ?</h4>
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary close-btn" data-dismiss="modal">

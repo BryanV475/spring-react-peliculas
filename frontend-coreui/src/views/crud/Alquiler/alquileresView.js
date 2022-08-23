@@ -6,12 +6,15 @@ import { cilPencil, cilPlus, cilTrash } from '@coreui/icons'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
-const URL = 'http://localhost:8080/backend/actores/'
-const URLSEXO = 'http://localhost:8080/backend/sexos/'
+const URL = 'http://localhost:8080/backend/alquilers/'
 
-export default function actoresView() {
+const URLSOCIOS = 'http://localhost:8080/backend/socios/'
+const URLPELICULAS = 'http://localhost:8080/backend/peliculas/'
+
+export default function alquileresView() {
   const [data, setData] = useState([])
-  const [sexos, setSexos] = useState([])
+  const [socios, setSocios] = useState([])
+  const [peliculas, setPeliculas] = useState([])
 
   var range = 0
 
@@ -20,13 +23,18 @@ export default function actoresView() {
 
   const [inputText, setInputText] = useState('')
 
-  const [actorSeleccionado, setActorSeleccionado] = useState({
-    nombre: '',
-    sex_id: 0,
+  const [alquilerSeleccionado, setAlquilerSeleccionado] = useState({
+    soc_id: 0,
+    pel_id: 0,
+    for_id: 0,
+    desde: '',
+    hasta: '',
+    valor: 0,
+    entrega: '',
   })
 
-  const seleccionarActor = (actor) => {
-    setActorSeleccionado(actor)
+  const seleccionarAlquiler = (alquiler) => {
+    setAlquilerSeleccionado(alquiler)
   }
 
   let inputHandler = (e) => {
@@ -36,16 +44,10 @@ export default function actoresView() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setActorSeleccionado((prevState) => ({
+    setAlquilerSeleccionado((prevState) => ({
       ...prevState,
       [name]: value,
     }))
-  }
-
-  const listarSexos = async () => {
-    await axios.get(URLSEXO).then((response) => {
-      setSexos(response.data)
-    })
   }
 
   const listarGet = async () => {
@@ -53,37 +55,56 @@ export default function actoresView() {
       setData(response.data)
     })
   }
+
+  const listarSocios = async () => {
+    await axios.get(URLSOCIOS).then((response) => {
+      setSocios(response.data)
+    })
+  }
+
+  const listarPeliculas = async () => {
+    await axios.get(URLPELICULAS).then((response) => {
+      setPeliculas(response.data)
+    })
+  }
+
   function reset() {
-    actorSeleccionado.id = 0
-    actorSeleccionado.nombre = ''
-    actorSeleccionado.sex_id = 0
+    alquilerSeleccionado.soc_id = 0
+    alquilerSeleccionado.pel_id = 0
+    alquilerSeleccionado.for_id = 0
+    alquilerSeleccionado.desde = ''
+    alquilerSeleccionado.hasta = ''
+    alquilerSeleccionado.valor = 0
+    alquilerSeleccionado.entrega = ''
     listarGet()
   }
+
   const agregarPost = async () => {
-    actorSeleccionado.id = 0
-    await axios.post(URL, actorSeleccionado).then((response) => {
+    alquilerSeleccionado.id = 0
+    await axios.post(URL, alquilerSeleccionado).then((response) => {
       setData(data.concat(response.data))
     })
     reset()
   }
 
   const editarPut = async () => {
-    await axios.put(URL + actorSeleccionado.id, actorSeleccionado).then((response) => {
+    await axios.put(URL + alquilerSeleccionado.id, alquilerSeleccionado).then((response) => {
       listarGet()
     })
     reset()
   }
 
   const borrarDelete = async () => {
-    await axios.delete(URL + actorSeleccionado.id).then((response) => {
-      setData(data.filter((actor) => actor.id !== actorSeleccionado.id))
+    await axios.delete(URL + alquilerSeleccionado.id).then((response) => {
+      setData(data.filter((alquiler) => alquiler.id !== alquilerSeleccionado.id))
     })
     reset()
     setPage(0)
   }
 
   useEffect(() => {
-    listarSexos()
+    listarPeliculas()
+    listarSocios()
   }, [])
 
   useEffect(() => {
@@ -108,7 +129,7 @@ export default function actoresView() {
                     }}
                   >
                     <div className="float-left">
-                      <h4>Lista de Actores </h4>
+                      <h4>Lista de Alquilers </h4>
                     </div>
                     <div>
                       <input
@@ -116,7 +137,7 @@ export default function actoresView() {
                         id="inputText"
                         name="inputText"
                         className="form-control"
-                        placeholder="Buscar Actores"
+                        placeholder="Buscar Alquilers"
                         onChange={inputHandler}
                       />
                     </div>
@@ -125,7 +146,7 @@ export default function actoresView() {
                       data-toggle="modal"
                       data-target="#createDataModal"
                     >
-                      <CIcon icon={cilPlus} /> Crear Actor
+                      <CIcon icon={cilPlus} /> Crear Papel
                     </button>
                   </div>
                 </div>
@@ -135,34 +156,66 @@ export default function actoresView() {
                       <thead className="thead">
                         <tr>
                           <td>Id</td>
-                          <th>Nombre</th>
-                          <th>Sexo</th>
+                          <th>Socio</th>
+                          <th>Pelicula</th>
+                          <th>Desde</th>
+                          <th>Hasta</th>
+                          <th>Valor</th>
+                          <th>Entrega</th>
                           <th>Acciones</th>
                         </tr>
                       </thead>
                       <tbody>
                         {data
-                          .filter((actor) => {
-                            var actorFilter
+                          .filter((alquiler) => {
+                            var alquilerFilter
                             if (inputText === '') {
-                              actorFilter = actor
-                            } else if (actor.nombre.toLowerCase().includes(inputText)) {
-                              actorFilter = actor
+                              alquilerFilter = alquiler
+                            } else if (alquiler.papel.toLowerCase().includes(inputText)) {
+                              alquilerFilter = alquiler
                             }
-                            return actorFilter
+                            return alquilerFilter
                           })
                           .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                          .map((actor) => (
-                            <tr key={actor.id}>
-                              <td>{actor.id}</td>
-                              <td>{actor.nombre}</td>
-                              <td>{sexos[actor.sex_id - 1].nombre}</td>
+                          .map((alquiler) => (
+                            <tr key={alquiler.id}>
+                              <td>{alquiler.id}</td>
+                              <td>
+                                {socios
+                                  .filter((socio) => {
+                                    var filter
+                                    if (socio.id === alquiler.soc_id) {
+                                      filter = socio
+                                    }
+                                    return filter
+                                  })
+                                  .map((socio) => {
+                                    return socio.nombre
+                                  })}
+                              </td>
+                              <td>
+                                {peliculas
+                                  .filter((pelicula) => {
+                                    var filter
+                                    if (pelicula.id === alquiler.pel_id) {
+                                      filter = pelicula
+                                    }
+                                    return filter
+                                  })
+                                  .map((pelicula) => {
+                                    return pelicula.nombre
+                                  })}
+                              </td>
+                              <td>{alquiler.desde}</td>
+                              <td>{alquiler.hasta}</td>
+                              <td>{alquiler.valor}</td>
+                              <td>{alquiler.entrega}</td>
                               <td className="d-flex justify-content-around">
                                 <button
                                   className="btn btn-info btn-sm"
                                   data-toggle="modal"
                                   data-target="#updateDataModal"
-                                  onClick={() => seleccionarActor(actor)}
+                                  onClick={() => seleccionarAlquiler(alquiler)}
                                 >
                                   <CIcon icon={cilPencil} /> Editar
                                 </button>
@@ -170,7 +223,7 @@ export default function actoresView() {
                                   className="btn btn-danger btn-sm"
                                   data-toggle="modal"
                                   data-target="#deleteDataModal"
-                                  onClick={() => seleccionarActor(actor)}
+                                  onClick={() => seleccionarAlquiler(alquiler)}
                                 >
                                   <CIcon icon={cilTrash} /> Eliminar
                                 </button>
@@ -226,7 +279,7 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="createDataModalLabel">
-                Crear Actor
+                Crear Alquiler
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
@@ -235,33 +288,86 @@ export default function actoresView() {
             <div className="modal-body">
               <form>
                 <div className="form-group">
-                  <label htmlFor="nombre" />
-                  <input
-                    type="text"
+                  <label htmlFor="soc_id" />
+                  <select
                     className="form-control"
-                    id="nombre"
-                    name="nombre"
-                    placeholder="Nombre"
-                    value={actorSeleccionado.nombre}
+                    id="soc_id"
+                    name="soc_id"
+                    onChange={handleChange}
+                    value={alquilerSeleccionado.soc_id}
+                  >
+                    <option value={0}>-Seleccione-</option>
+                    {socios.map((socio) => (
+                      <option key={socio.id} value={socio.id}>
+                        {socio.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="pel_id" />
+                  <select
+                    className="form-control"
+                    id="pel_id"
+                    name="pel_id"
+                    onChange={handleChange}
+                    value={alquilerSeleccionado.pel_id}
+                  >
+                    <option value={0}>-Seleccione-</option>
+                    {peliculas.map((pelicula) => (
+                      <option key={pelicula.id} value={pelicula.id}>
+                        {pelicula.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="desde" />
+                  <input
+                    type="desde"
+                    className="form-control"
+                    id="desde"
+                    name="desde"
+                    placeholder="desde"
+                    value={alquilerSeleccionado.desde}
                     onChange={handleChange}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="sex_id" />
-                  <select
+                  <label htmlFor="hasta" />
+                  <input
+                    type="hasta"
                     className="form-control"
-                    id="sex_id"
-                    name="sex_id"
+                    id="hasta"
+                    name="hasta"
+                    placeholder="hasta"
+                    value={alquilerSeleccionado.hasta}
                     onChange={handleChange}
-                    value={actorSeleccionado.sex_id}
-                  >
-                    <option value={0}>-Seleccione-</option>
-                    {sexos.map((sexo) => (
-                      <option key={sexo.id} value={sexo.id}>
-                        {sexo.nombre}
-                      </option>
-                    ))}
-                  </select>
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="valor" />
+                  <input
+                    type="number"
+                    className="form-control"
+                    id="valor"
+                    name="valor"
+                    placeholder="valor"
+                    value={alquilerSeleccionado.valor}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="entrega" />
+                  <input
+                    type="entrega"
+                    className="form-control"
+                    id="entrega"
+                    name="entrega"
+                    placeholder="entrega"
+                    value={alquilerSeleccionado.entrega}
+                    onChange={handleChange}
+                  />
                 </div>
               </form>
             </div>
@@ -295,7 +401,7 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="updateDataModalLabel">
-                Editar Actor
+                Editar Alquiler
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
@@ -304,33 +410,86 @@ export default function actoresView() {
             <div className="modal-body">
               <form>
                 <div className="form-group">
-                  <label htmlFor="nombre" />
-                  <input
-                    type="text"
+                  <label htmlFor="soc_id" />
+                  <select
                     className="form-control"
-                    id="nombre"
-                    name="nombre"
-                    placeholder="Nombre"
-                    value={actorSeleccionado.nombre}
+                    id="soc_id"
+                    name="soc_id"
+                    onChange={handleChange}
+                    value={alquilerSeleccionado.soc_id}
+                  >
+                    <option value={0}>-Seleccione-</option>
+                    {socios.map((socio) => (
+                      <option key={socio.id} value={socio.id}>
+                        {socio.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="pel_id" />
+                  <select
+                    className="form-control"
+                    id="pel_id"
+                    name="pel_id"
+                    onChange={handleChange}
+                    value={alquilerSeleccionado.pel_id}
+                  >
+                    <option value={0}>-Seleccione-</option>
+                    {peliculas.map((pelicula) => (
+                      <option key={pelicula.id} value={pelicula.id}>
+                        {pelicula.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="desde" />
+                  <input
+                    type="desde"
+                    className="form-control"
+                    id="desde"
+                    name="desde"
+                    placeholder="desde"
+                    value={alquilerSeleccionado.desde}
                     onChange={handleChange}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="sex_id" />
-                  <select
+                  <label htmlFor="hasta" />
+                  <input
+                    type="hasta"
                     className="form-control"
-                    id="sex_id"
-                    name="sex_id"
+                    id="hasta"
+                    name="hasta"
+                    placeholder="hasta"
+                    value={alquilerSeleccionado.hasta}
                     onChange={handleChange}
-                    value={actorSeleccionado.sex_id}
-                  >
-                    <option value={0}>-Seleccione-</option>
-                    {sexos.map((sexo) => (
-                      <option key={sexo.id} value={sexo.id}>
-                        {sexo.nombre}
-                      </option>
-                    ))}
-                  </select>
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="valor" />
+                  <input
+                    type="number"
+                    className="form-control"
+                    id="valor"
+                    name="valor"
+                    placeholder="valor"
+                    value={alquilerSeleccionado.valor}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="entrega" />
+                  <input
+                    type="entrega"
+                    className="form-control"
+                    id="entrega"
+                    name="entrega"
+                    placeholder="entrega"
+                    value={alquilerSeleccionado.entrega}
+                    onChange={handleChange}
+                  />
                 </div>
               </form>
             </div>
@@ -364,14 +523,14 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="deleteDataModalLabel">
-                Eliminar Actor
+                Eliminar Papel
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
               </button>
             </div>
             <div className="modal-body">
-              <h4>Realmente desea eliminar el Actor: {actorSeleccionado.nombre} ?</h4>
+              <h4>Realmente desea eliminar el Alquiler ?</h4>
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary close-btn" data-dismiss="modal">

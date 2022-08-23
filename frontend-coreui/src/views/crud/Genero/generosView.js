@@ -6,12 +6,10 @@ import { cilPencil, cilPlus, cilTrash } from '@coreui/icons'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
-const URL = 'http://localhost:8080/backend/actores/'
-const URLSEXO = 'http://localhost:8080/backend/sexos/'
+const URL = 'http://localhost:8080/backend/generos/'
 
-export default function actoresView() {
+export default function generosView() {
   const [data, setData] = useState([])
-  const [sexos, setSexos] = useState([])
 
   var range = 0
 
@@ -20,13 +18,12 @@ export default function actoresView() {
 
   const [inputText, setInputText] = useState('')
 
-  const [actorSeleccionado, setActorSeleccionado] = useState({
+  const [generoSeleccionado, setGeneroSeleccionado] = useState({
     nombre: '',
-    sex_id: 0,
   })
 
-  const seleccionarActor = (actor) => {
-    setActorSeleccionado(actor)
+  const seleccionarGenero = (genero) => {
+    setGeneroSeleccionado(genero)
   }
 
   let inputHandler = (e) => {
@@ -36,16 +33,10 @@ export default function actoresView() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setActorSeleccionado((prevState) => ({
+    setGeneroSeleccionado((prevState) => ({
       ...prevState,
       [name]: value,
     }))
-  }
-
-  const listarSexos = async () => {
-    await axios.get(URLSEXO).then((response) => {
-      setSexos(response.data)
-    })
   }
 
   const listarGet = async () => {
@@ -53,38 +44,35 @@ export default function actoresView() {
       setData(response.data)
     })
   }
+
   function reset() {
-    actorSeleccionado.id = 0
-    actorSeleccionado.nombre = ''
-    actorSeleccionado.sex_id = 0
+    generoSeleccionado.id = 0
+    generoSeleccionado.nombre = ''
     listarGet()
   }
+
   const agregarPost = async () => {
-    actorSeleccionado.id = 0
-    await axios.post(URL, actorSeleccionado).then((response) => {
+    generoSeleccionado.id = 0
+    await axios.post(URL, generoSeleccionado).then((response) => {
       setData(data.concat(response.data))
     })
     reset()
   }
 
   const editarPut = async () => {
-    await axios.put(URL + actorSeleccionado.id, actorSeleccionado).then((response) => {
+    await axios.put(URL + generoSeleccionado.id, generoSeleccionado).then((response) => {
       listarGet()
     })
     reset()
   }
 
   const borrarDelete = async () => {
-    await axios.delete(URL + actorSeleccionado.id).then((response) => {
-      setData(data.filter((actor) => actor.id !== actorSeleccionado.id))
+    await axios.delete(URL + generoSeleccionado.id).then((response) => {
+      setData(data.filter((genero) => genero.id !== generoSeleccionado.id))
     })
     reset()
     setPage(0)
   }
-
-  useEffect(() => {
-    listarSexos()
-  }, [])
 
   useEffect(() => {
     listarGet()
@@ -108,7 +96,7 @@ export default function actoresView() {
                     }}
                   >
                     <div className="float-left">
-                      <h4>Lista de Actores </h4>
+                      <h4>Lista de Generos </h4>
                     </div>
                     <div>
                       <input
@@ -116,7 +104,7 @@ export default function actoresView() {
                         id="inputText"
                         name="inputText"
                         className="form-control"
-                        placeholder="Buscar Actores"
+                        placeholder="Buscar Generos"
                         onChange={inputHandler}
                       />
                     </div>
@@ -125,7 +113,7 @@ export default function actoresView() {
                       data-toggle="modal"
                       data-target="#createDataModal"
                     >
-                      <CIcon icon={cilPlus} /> Crear Actor
+                      <CIcon icon={cilPlus} /> Crear Genero
                     </button>
                   </div>
                 </div>
@@ -136,33 +124,31 @@ export default function actoresView() {
                         <tr>
                           <td>Id</td>
                           <th>Nombre</th>
-                          <th>Sexo</th>
                           <th>Acciones</th>
                         </tr>
                       </thead>
                       <tbody>
                         {data
-                          .filter((actor) => {
-                            var actorFilter
+                          .filter((genero) => {
+                            var generoFilter
                             if (inputText === '') {
-                              actorFilter = actor
-                            } else if (actor.nombre.toLowerCase().includes(inputText)) {
-                              actorFilter = actor
+                              generoFilter = genero
+                            } else if (genero.nombre.toLowerCase().includes(inputText)) {
+                              generoFilter = genero
                             }
-                            return actorFilter
+                            return generoFilter
                           })
                           .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                          .map((actor) => (
-                            <tr key={actor.id}>
-                              <td>{actor.id}</td>
-                              <td>{actor.nombre}</td>
-                              <td>{sexos[actor.sex_id - 1].nombre}</td>
+                          .map((genero) => (
+                            <tr key={genero.id}>
+                              <td>{genero.id}</td>
+                              <td>{genero.nombre}</td>
                               <td className="d-flex justify-content-around">
                                 <button
                                   className="btn btn-info btn-sm"
                                   data-toggle="modal"
                                   data-target="#updateDataModal"
-                                  onClick={() => seleccionarActor(actor)}
+                                  onClick={() => seleccionarGenero(genero)}
                                 >
                                   <CIcon icon={cilPencil} /> Editar
                                 </button>
@@ -170,7 +156,7 @@ export default function actoresView() {
                                   className="btn btn-danger btn-sm"
                                   data-toggle="modal"
                                   data-target="#deleteDataModal"
-                                  onClick={() => seleccionarActor(actor)}
+                                  onClick={() => seleccionarGenero(genero)}
                                 >
                                   <CIcon icon={cilTrash} /> Eliminar
                                 </button>
@@ -226,7 +212,7 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="createDataModalLabel">
-                Crear Actor
+                Crear Genero
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
@@ -242,26 +228,9 @@ export default function actoresView() {
                     id="nombre"
                     name="nombre"
                     placeholder="Nombre"
-                    value={actorSeleccionado.nombre}
+                    value={generoSeleccionado.nombre}
                     onChange={handleChange}
                   />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="sex_id" />
-                  <select
-                    className="form-control"
-                    id="sex_id"
-                    name="sex_id"
-                    onChange={handleChange}
-                    value={actorSeleccionado.sex_id}
-                  >
-                    <option value={0}>-Seleccione-</option>
-                    {sexos.map((sexo) => (
-                      <option key={sexo.id} value={sexo.id}>
-                        {sexo.nombre}
-                      </option>
-                    ))}
-                  </select>
                 </div>
               </form>
             </div>
@@ -295,7 +264,7 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="updateDataModalLabel">
-                Editar Actor
+                Editar Genero
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
@@ -311,26 +280,9 @@ export default function actoresView() {
                     id="nombre"
                     name="nombre"
                     placeholder="Nombre"
-                    value={actorSeleccionado.nombre}
+                    value={generoSeleccionado.nombre}
                     onChange={handleChange}
                   />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="sex_id" />
-                  <select
-                    className="form-control"
-                    id="sex_id"
-                    name="sex_id"
-                    onChange={handleChange}
-                    value={actorSeleccionado.sex_id}
-                  >
-                    <option value={0}>-Seleccione-</option>
-                    {sexos.map((sexo) => (
-                      <option key={sexo.id} value={sexo.id}>
-                        {sexo.nombre}
-                      </option>
-                    ))}
-                  </select>
                 </div>
               </form>
             </div>
@@ -364,14 +316,14 @@ export default function actoresView() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="deleteDataModalLabel">
-                Eliminar Actor
+                Eliminar Genero
               </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">x</span>
               </button>
             </div>
             <div className="modal-body">
-              <h4>Realmente desea eliminar el Actor: {actorSeleccionado.nombre} ?</h4>
+              <h4>Realmente desea eliminar el Genero: {generoSeleccionado.nombre} ?</h4>
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary close-btn" data-dismiss="modal">
